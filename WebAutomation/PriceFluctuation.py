@@ -21,7 +21,6 @@ driver.get('https://www.lazada.sg/#')
 # by ID "Level_1_Category_No1". If 30 secs passed without
 # such element, TimeoutException shuts down the browser
 
-
 timeout = 30
 try:
     WebDriverWait(driver, timeout).until(EC.visibility_of_element_located((By.ID, "Level_1_Category_No1")))
@@ -48,21 +47,21 @@ webdriver.ActionChains(driver).move_to_element(element).click(element).perform()
 # for title in product_titles:
 #     print(title.text)
 
-# Extract the product title, pack size, price, and rating
-product_containers = driver.find_elements_by_class_name('product_container')
-product_titles = list()
-pack_sizes = list()
-product_prices = list()
+product_titles = list() 
+pack_sizes = list() 
+product_prices = list() 
 rating_counts = list()
+product_containers = driver.find_elements_by_class_name('product_container')
 for container in product_containers:
-    # print(container)
-    print(product_titles.append(container.driver.find_elements_by_class_name('title').text))
-    # product_titles.append(container.find_elements_by_class_name('title').text)
-    # pack_sizes.append(container.find_elements_by_class_name('pack_size').text)
-    # product_prices.append(container.find_elements_by_class_name('product_price').text)
-    # rating_counts.append(container.find_elements_by_class_name('ratings_count').text)
-# data = {'product_title': product_titles, 'product_prices': product_prices, 'rating_counts': rating_counts}
+    product_titles.append(container.find_elements_by_class_name('title')[0].text)
+    pack_sizes.append(container.find_elements_by_class_name('pack_size')[0].text)
+    product_prices.append(container.find_elements_by_class_name('product_price')[0].text)
+    rating_counts.append(container.find_elements_by_class_name('rating')[0].text)
 
-# df_product = pd.DataFrame.from_dict(data)
-# df_product.to_csv('product_indo.csv')
+# print(len(product_titles), len(pack_sizes), len(product_prices), len(rating_counts))
+data = {'product_title': product_titles, 'pack_size': pack_sizes, 'product_prices': product_prices, 'rating_counts': rating_counts}
+
+df_product = pd.DataFrame.from_dict(data)
+# print(df_product)
+df_product.to_csv('product_info.csv', encoding='utf-8')
 # print(product_prices)
