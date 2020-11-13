@@ -6,13 +6,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC 
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.support.ui import WebDriverWait
+import time
 import pandas as pd
 
 options = webdriver.ChromeOptions()
 options.add_argument('--ignore-certificate-errors')
 options.add_argument('--incognito')
 driver = webdriver.Chrome(executable_path="/mnt/c/Users/Public/chromedriver_win32 (1)/chromedriver.exe", chrome_options=options)
-driver.get("https://www.indeed.com/jobs?q=software%20engineer%20entry%20level&advn=1515350661095281&vjk=bf7f0c38fb8101aa")
+driver.get("https://www.indeed.com/jobs?q=software+engineer+entry+level&l=")
 
 # Wait for page to load and find the job posting card
 
@@ -22,6 +23,14 @@ try:
 except TimeoutException:
     driver.quit()
 
-# Gives you the first card?
-job_card = driver.find_element_by_class_name('jobsearch-SerpJobCard') 
+# Retrieve job card preview information
+# list_table_elements = driver.find_element(By.XPATH, "//table[@id='pageContent']/tbody/tr//td[@id='resultsCol']")
+# job_card = list_table_elements.find_elements(By.CLASS_NAME, "jobsearch-SerpJobCard")
+# for card in job_card:
+#     print(card.text + "\n")
 
+# Click through the links to access full job description
+elements = driver.find_elements_by_class_name('jobtitle')
+for link in elements:
+    webdriver.ActionChains(driver).move_to_element(link).click(link).perform()
+    time.sleep(3)
