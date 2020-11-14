@@ -34,18 +34,37 @@ for card in job_card:
 
 # Click through the links to access full job description
 # HTML Parsing
-elements = driver.find_elements_by_class_name('jobtitle')
-page_source = driver.page_source
-soup = BeautifulSoup(page_source, 'html.parser')
+# elements = driver.find_elements_by_class_name('jobtitle')
+# page_source = driver.page_source
+# soup = BeautifulSoup(page_source, 'html.parser')
+
 # jobTitles = soup.find_all('div', class_='jobsearch-JobInfoHeader-title-container')
-jobTitles = driver.find_elements(By.XPATH, "//*[@data-tn-element='jobTitle']")
+# companyName = soup.find_all('div', class_='jobsearch-JobInfoHeader-subtitle')
+# job_header = soup.find_all('iframe', id='vjs-container-iframe')
+# print(len(job_header))
+"""
+jobTitles = driver.find_elements(By.XPATH, "//*[@data-tn-element='jobTitle']")   
 job_title = []
 for jobNum, link in enumerate(elements):
     webdriver.ActionChains(driver).move_to_element(link).click(link).perform()
     title = jobTitles[jobNum].text
     job_title.append(title)
+    company_name = soup.find('iframe', id='vjs-container-iframe')
     time.sleep(1)
+"""
+job_positions = []
+companies = []
+location = []
+elements = driver.find_elements_by_class_name('jobsearch-SerpJobCard')
+for job_preview in elements:
+    job_positions.append(job_preview.find_element_by_class_name('title').text)
+    companies.append(job_preview.find_element_by_class_name('company').text)
+    location.append(job_preview.find_element_by_class_name('location').text)
 
+data = {'companies': companies, 'job_positions': job_positions, 'location': location}
+
+df = pd.DataFrame.from_dict(data)
+df.to_csv('job_description.csv', encoding='utf-8')
 # HTML Parsing with BeautifulSoup
 """
 page_source = driver.page_source
