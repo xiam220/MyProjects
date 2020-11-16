@@ -54,21 +54,36 @@ for link in elements:
 # Append basic job details
 job_positions = []
 companies = []
-# companies = set()
 location = []
 job_overview = []
-elements = driver.find_elements_by_class_name('jobsearch-SerpJobCard')
-for job_preview in elements:
-    # webdriver.ActionChains(driver).move_to_element(job_preview).click(job_preview).perform()
-    job_positions.append(job_preview.find_element_by_class_name('title').text)
-    companies.append(job_preview.find_element_by_class_name('company').text)
-    location.append(job_preview.find_element_by_class_name('location').text)
-    job_overview.append(job_preview.find_element_by_class_name('summary').text)
-    time.sleep(1)
 
-# data = {'Location': location, 'Company': companies, 'Position': job_positions, 'Job Overview': job_overview}
+page_source = driver.page_source
+soup = BeautifulSoup(page_source, 'html.parser')
 
-# Store data in csv file
+pages = soup.find(name='div', attrs={'id':"searchCountPages"}).get_text()
+num_pages = pages.split()[3]
+
+urls = ['https://www.indeed.com/jobs?q=software+engineer+entry+level&l=']
+for index in range(2, int(num_pages)+1):
+    pageVal = (index-1) * 10
+    base_url = 'https://www.indeed.com/jobs?q=software+engineer+entry+level&start='
+    url = base_url + str(pageVal)
+    urls.append(url)
+
+for page in range(0, 5):
+    print(urls[page])
+    driver.get(urls[page])
+    elements = driver.find_elements_by_class_name('jobsearch-SerpJobCard')
+    for job_preview in elements:
+        # webdriver.ActionChains(driver).move_to_element(job_preview).click(job_preview).perform()
+        job_positions.append(job_preview.find_element_by_class_name('title').text)
+        companies.append(job_preview.find_element_by_class_name('company').text)
+        location.append(job_preview.find_element_by_class_name('location').text)
+        job_overview.append(job_preview.find_element_by_class_name('summary').text)
+        time.sleep(1)
+    time.sleep(2)
+
+# Store data in Excel file
 sheet_name = set(companies)
 wb = Workbook()
 dest_filename = 'job_postings.xlsx'
