@@ -66,28 +66,18 @@ for job_preview in elements:
     job_overview.append(job_preview.find_element_by_class_name('summary').text)
     time.sleep(1)
 
+# data = {'Location': location, 'Company': companies, 'Position': job_positions, 'Job Overview': job_overview}
+
 # Store data in csv file
-data = {'Location': location, 'Company': companies, 'Position': job_positions, 'Job Overview': job_overview}
-# print(len(location), len(companies), len(job_positions), len(job_overview))
-"""
-df = pd.DataFrame.from_dict(data)
-df.to_csv('job_description.csv', encoding='utf-8')
-"""
-"""
-df = pd.DataFrame.from_dict(data)
-writer = pd.ExcelWriter('output.xlsx')
-df.to_excel(writer)
-writer.save()
-"""
 sheet_name = set(companies)
 wb = Workbook()
-dest_filename = 'output.xlsx'
+dest_filename = 'job_postings.xlsx'
 
 for sheet in sheet_name:
     wb.create_sheet(title=sheet)
+
+for index, company in enumerate(companies):
+    if company in sheet_name:
+        wb[company].append([index, location[index], job_positions[index], job_overview[index]])
 wb.save(filename=dest_filename)
 print('DataFrame was written successfully to Excel File')
-# writer = pd.ExcelWriter('job_postings.xlsx', engine='xlsxwriter', encoding='utf-8')
-# for sheet_name in companies:
-#     sheet_name.to_excel(writer, sheet_name=sheet_name, index=False)
-# writer.save()
