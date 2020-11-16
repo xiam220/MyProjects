@@ -10,6 +10,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from bs4 import BeautifulSoup
 import time
 import pandas as pd
+import xlsxwriter
+from openpyxl import Workbook
+from openpyxl import load_workbook
 
 options = webdriver.ChromeOptions()
 options.add_argument('--ignore-certificate-errors')
@@ -32,48 +35,59 @@ for card in job_card:
     print(card.text + "\n")
 """
 
-# Click through the links to access full job description
-# HTML Parsing
-# elements = driver.find_elements_by_class_name('jobtitle')
-# page_source = driver.page_source
-# soup = BeautifulSoup(page_source, 'html.parser')
-
-# jobTitles = soup.find_all('div', class_='jobsearch-JobInfoHeader-title-container')
-# companyName = soup.find_all('div', class_='jobsearch-JobInfoHeader-subtitle')
-# job_header = soup.find_all('iframe', id='vjs-container-iframe')
-# print(len(job_header))
+# Full Job Description
 """
-jobTitles = driver.find_elements(By.XPATH, "//*[@data-tn-element='jobTitle']")   
-job_title = []
-for jobNum, link in enumerate(elements):
+elements = driver.find_elements_by_class_name('jobsearch-SerpJobCard')
+# job_container = driver.find_elements(By.ID, 'vjs-container-iframe')
+page_source = driver.page_source
+soup = BeautifulSoup(page_source, 'html.parser')
+# job = soup.find_all('div', class_='jobsearch-SerpJobCard')
+# print(len(job))
+for link in elements:
     webdriver.ActionChains(driver).move_to_element(link).click(link).perform()
-    title = jobTitles[jobNum].text
-    job_title.append(title)
-    company_name = soup.find('iframe', id='vjs-container-iframe')
+    job_container = soup.find(id='vjs-container')
+    job_description = job_container.find('ul').find('li').get_text()
+    print(job_description)
     time.sleep(1)
 """
+
+# Append basic job details
 job_positions = []
 companies = []
+# companies = set()
 location = []
+job_overview = []
 elements = driver.find_elements_by_class_name('jobsearch-SerpJobCard')
 for job_preview in elements:
+    # webdriver.ActionChains(driver).move_to_element(job_preview).click(job_preview).perform()
     job_positions.append(job_preview.find_element_by_class_name('title').text)
     companies.append(job_preview.find_element_by_class_name('company').text)
     location.append(job_preview.find_element_by_class_name('location').text)
+    job_overview.append(job_preview.find_element_by_class_name('summary').text)
+    time.sleep(1)
 
-data = {'companies': companies, 'job_positions': job_positions, 'location': location}
-
+# Store data in csv file
+data = {'Location': location, 'Company': companies, 'Position': job_positions, 'Job Overview': job_overview}
+# print(len(location), len(companies), len(job_positions), len(job_overview))
+"""
 df = pd.DataFrame.from_dict(data)
 df.to_csv('job_description.csv', encoding='utf-8')
-# HTML Parsing with BeautifulSoup
 """
-page_source = driver.page_source
-soup = BeautifulSoup(page_source, 'html.parser')
-job_containers = soup.find_all('div', id='vjs-container')
-job_title = []
-print(len(job_containers))
-# for container in job_containers:
-#     title = container.find('h3', class_='jobsearch-JobInfoHeader-title').get_text()
-#     print(title)
-# print(job_title)
 """
+df = pd.DataFrame.from_dict(data)
+writer = pd.ExcelWriter('output.xlsx')
+df.to_excel(writer)
+writer.save()
+"""
+sheet_name = set(companies)
+wb = Workbook()
+dest_filename = 'output.xlsx'
+
+for sheet in sheet_name:
+    wb.create_sheet(title=sheet)
+wb.save(filename=dest_filename)
+print('DataFrame was written successfully to Excel File')
+# writer = pd.ExcelWriter('job_postings.xlsx', engine='xlsxwriter', encoding='utf-8')
+# for sheet_name in companies:
+#     sheet_name.to_excel(writer, sheet_name=sheet_name, index=False)
+# writer.save()
